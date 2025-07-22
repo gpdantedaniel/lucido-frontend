@@ -13,7 +13,6 @@ export function ToolCalls({
   toolCalls: AIMessage["tool_calls"];
 }) {
   if (!toolCalls || toolCalls.length === 0) return null;
-
   return (
     <div className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2">
       {toolCalls.map((tc, idx) => {
@@ -92,6 +91,8 @@ export function ToolResult({ message }: { message: ToolMessage }) {
         ? contentStr.slice(0, 500) + "..."
         : contentLines.slice(0, 4).join("\n") + "\n..."
       : contentStr;
+
+  console.log(message);
 
   return (
     <div className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2">

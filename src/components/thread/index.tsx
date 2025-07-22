@@ -46,6 +46,7 @@ import {
   ArtifactTitle,
   useArtifactContext,
 } from "./artifact";
+import Image from "next/image";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -323,7 +324,6 @@ export function Thread() {
                 )}
               </div>
               <div className="absolute top-2 right-4 flex items-center">
-                <OpenGitHubRepo />
               </div>
             </div>
           )}
@@ -357,20 +357,19 @@ export function Thread() {
                     damping: 30,
                   }}
                 >
-                  <LangGraphLogoSVG
-                    width={32}
-                    height={32}
+                  <Image
+                    src='./icon.svg'
+                    height={26}
+                    width={26}
+                    alt='Lucido icon'
                   />
                   <span className="text-xl font-semibold tracking-tight">
-                    Agent Chat
+                    Lucido Chat
                   </span>
                 </motion.button>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="flex items-center">
-                  <OpenGitHubRepo />
-                </div>
                 <TooltipIconButton
                   size="lg"
                   className="p-4"
@@ -430,12 +429,12 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
+                <div className="sticky bottom-0 flex flex-col items-center gap-16 bg-white">
                   {!chatStarted && (
-                    <div className="flex items-center gap-3">
-                      <LangGraphLogoSVG className="h-8 flex-shrink-0" />
-                      <h1 className="text-2xl font-semibold tracking-tight">
-                        Agent Chat
+                    <div className="flex flex-col items-center gap-4">
+                      <Image src='/logo.svg' width={250} height={500} alt='Lucido Logo'/>
+                      <h1 className="text-2xl tracking-tight">
+                        your virtual teaching assistant
                       </h1>
                     </div>
                   )}
@@ -496,6 +495,7 @@ export function Thread() {
                             </Label>
                           </div>
                         </div>
+
                         <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
@@ -513,6 +513,7 @@ export function Thread() {
                           accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
                           className="hidden"
                         />
+                        
                         {stream.isLoading ? (
                           <Button
                             key="stop"
