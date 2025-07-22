@@ -6,7 +6,7 @@ import { useStreamContext } from "@/providers/Stream";
 import { useState, FormEvent } from "react";
 import { Button } from "../ui/button";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
-import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
+import { AssistantMessage, AssistantMessageLoading, AssistantThinking } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
 import {
   DO_NOT_RENDER_ID_PREFIX,
@@ -144,6 +144,8 @@ export function Thread() {
   const messages = stream.messages;
   const isLoading = stream.isLoading;
 
+  console.log('messages:', messages);
+
   const lastError = useRef<string | undefined>(undefined);
 
   const setThreadId = (id: string | null) => {
@@ -252,6 +254,9 @@ export function Thread() {
   const hasNoAIOrToolMessages = !messages.find(
     (m) => m.type === "ai" || m.type === "tool",
   );
+
+  const last_message = messages[messages.length - 1]
+  const thinking = last_message != undefined && last_message.type == 'ai' && last_message.content == ''
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -425,6 +430,10 @@ export function Thread() {
                   )}
                   {isLoading && !firstTokenReceived && (
                     <AssistantMessageLoading />
+                  )}
+                  
+                  { thinking && (
+                    <AssistantThinking/>
                   )}
                 </>
               }

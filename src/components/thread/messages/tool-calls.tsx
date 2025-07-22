@@ -7,6 +7,14 @@ function isComplexValue(value: any): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
 }
 
+const calls_descriptions: { [key: string]: string } = {
+  'retrieval_tool': 'Looking up knowledge 🔎'
+}
+
+const results_descriptions: { [key: string]: string} = {
+  'retrieval_tool': "Here is what I found 📚"
+}
+
 export function ToolCalls({
   toolCalls,
 }: {
@@ -25,12 +33,11 @@ export function ToolCalls({
           >
             <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
               <h3 className="font-medium text-gray-900">
-                {tc.name}
-                {tc.id && (
-                  <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
-                    {tc.id}
-                  </code>
-                )}
+                {(tc.name in calls_descriptions) ? (
+                  calls_descriptions[tc.name]
+                ) : (
+                  tc.name
+                )}                
               </h3>
             </div>
             {hasArgs ? (
@@ -92,7 +99,8 @@ export function ToolResult({ message }: { message: ToolMessage }) {
         : contentLines.slice(0, 4).join("\n") + "\n..."
       : contentStr;
 
-  console.log(message);
+  const artifact = (message as any).artifact ?? null;
+  const sources = artifact?.sources ?? null;
 
   return (
     <div className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2">
@@ -100,19 +108,20 @@ export function ToolResult({ message }: { message: ToolMessage }) {
         <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             {message.name ? (
-              <h3 className="font-medium text-gray-900">
-                Tool Result:{" "}
-                <code className="rounded bg-gray-100 px-2 py-1">
-                  {message.name}
-                </code>
-              </h3>
+              (message.name in results_descriptions) ? (
+                <h3 className="font-medium text-gray-900">
+                  {results_descriptions[message.name]}
+                </h3>
+              ) : (
+                <h3 className="font-medium text-gray-900">
+                  Tool Result:{" "}
+                  <code className="rounded bg-gray-100 px-2 py-1">
+                    {message.name}
+                  </code>
+                </h3>
+              )
             ) : (
               <h3 className="font-medium text-gray-900">Tool Result</h3>
-            )}
-            {message.tool_call_id && (
-              <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
-                {message.tool_call_id}
-              </code>
             )}
           </div>
         </div>
