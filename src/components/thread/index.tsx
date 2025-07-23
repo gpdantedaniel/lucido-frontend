@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
-import ThreadHistory from "./history";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
@@ -280,7 +279,6 @@ export function Thread() {
             className="relative h-full"
             style={{ width: 300 }}
           >
-            <ThreadHistory />
           </div>
         </motion.div>
       </div>
@@ -311,7 +309,7 @@ export function Thread() {
               : { duration: 0 }
           }
         >
-          {!chatStarted && (
+          {/*!chatStarted && (
             <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-2 pl-4">
               <div>
                 {(!chatHistoryOpen || !isLargeScreen) && (
@@ -331,11 +329,11 @@ export function Thread() {
               <div className="absolute top-2 right-4 flex items-center">
               </div>
             </div>
-          )}
+          ) */}
           {chatStarted && (
             <div className="relative z-10 flex items-center justify-between gap-3 p-2">
               <div className="relative flex items-center justify-start gap-2">
-                <div className="absolute left-0 z-10">
+                {/*<div className="absolute left-0 z-10">
                   {(!chatHistoryOpen || !isLargeScreen) && (
                     <Button
                       className="hover:bg-gray-100"
@@ -349,12 +347,12 @@ export function Thread() {
                       )}
                     </Button>
                   )}
-                </div>
+                </div>*/}
                 <motion.button
                   className="flex cursor-pointer items-center gap-2"
                   onClick={() => setThreadId(null)}
                   animate={{
-                    marginLeft: !chatHistoryOpen ? 48 : 0,
+                    marginLeft: !chatHistoryOpen ? 0 : 0,
                   }}
                   transition={{
                     type: "spring",
