@@ -95,10 +95,12 @@ function Interrupt({
 
 export function AssistantMessage({
   message,
+  sources,
   isLoading,
   handleRegenerate,
 }: {
   message: Message | undefined;
+  sources?: string | undefined;
   isLoading: boolean;
   handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
 }) {

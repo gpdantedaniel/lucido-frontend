@@ -2,6 +2,7 @@ import { AIMessage, ToolMessage } from "@langchain/langgraph-sdk";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { MarkdownText } from "../markdown-text";
 
 function isComplexValue(value: any): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
@@ -12,7 +13,7 @@ const calls_descriptions: { [key: string]: string } = {
 }
 
 const results_descriptions: { [key: string]: string} = {
-  'retrieval_tool': "Here is what I found 📚"
+  'retrieval_tool': "Here's what my sources tell me 📚"
 }
 
 export function ToolCalls({
@@ -87,21 +88,23 @@ export function ToolResult({ message }: { message: ToolMessage }) {
     parsedContent = message.content;
   }
 
+  const artifact = (message as any).artifact ?? null;
+  const sources = artifact?.sources ?? null;
+
   const contentStr = isJsonContent
     ? JSON.stringify(parsedContent, null, 2)
-    : String(message.content);
+    : sources != null ? `${String(message.content)}\n\n**Sources:**\n\n\n${sources}`
+    : String(message.content)
+
   const contentLines = contentStr.split("\n");
   const shouldTruncate = contentLines.length > 4 || contentStr.length > 500;
   const displayedContent =
     shouldTruncate && !isExpanded
-      ? contentStr.length > 500
-        ? contentStr.slice(0, 500) + "..."
+      ? contentStr.length > 300
+        ? contentStr.slice(0, 300) + "..."
         : contentLines.slice(0, 4).join("\n") + "\n..."
       : contentStr;
-
-  const artifact = (message as any).artifact ?? null;
-  const sources = artifact?.sources ?? null;
-
+      
   return (
     <div className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2">
       <div className="overflow-hidden rounded-lg border border-gray-200">
@@ -175,7 +178,7 @@ export function ToolResult({ message }: { message: ToolMessage }) {
                     </tbody>
                   </table>
                 ) : (
-                  <code className="block text-sm">{displayedContent}</code>
+                  <MarkdownText>{displayedContent}</MarkdownText>
                 )}
               </motion.div>
             </AnimatePresence>
