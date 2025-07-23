@@ -22,6 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <link rel='icon' href='/icon.svg' type='image/svg'/>
       <body className={inter.className}>
         <NuqsAdapter>{children}</NuqsAdapter>
       </body>
