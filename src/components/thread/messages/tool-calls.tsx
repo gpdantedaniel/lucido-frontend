@@ -9,11 +9,33 @@ function isComplexValue(value: any): boolean {
 }
 
 const calls_descriptions: { [key: string]: string } = {
-  'retrieval_tool': 'Looking up knowledge 🔎'
+  'retrieval_tool': 'Looking up knowledge 🔎',
+  'cheatsheet_tool': 'Generating your cheatsheet 📄',
+  'quiz_tool': 'Generating your quiz 📝',
+  'flashcards_tool': 'Generating your flashcards 📇',
+  'podcast_tool': 'Generating your podcast 🎤',
 }
 
+const download_tools = [
+  'cheatsheet_tool',
+  'quiz_tool',
+  'flashcards_tool',
+  'podcast_tool'
+]
+
 const results_descriptions: { [key: string]: string} = {
-  'retrieval_tool': "Here's what my sources tell me 📚"
+  'retrieval_tool': "Here's what my sources tell me 📚",
+  'cheatsheet_tool': 'Finished generating cheatsheet ✔️',
+  'quiz_tool': 'Finished generating your quiz ✔️',
+  'flashcards_tool': 'Finished generating your flashcards ✔️',
+  'podcast_tool': 'Finished generating your podcast ✔️',
+}
+
+const output_names: { [key: string]: string} = {
+  'cheatsheet_tool': 'cheatsheet',
+  'quiz_tool': 'quiz',
+  'flashcards_tool': 'flashcards',
+  'podcast_tool': 'podcast'
 }
 
 export function ToolCalls({
@@ -27,12 +49,14 @@ export function ToolCalls({
       {toolCalls.map((tc, idx) => {
         const args = tc.args as Record<string, any>;
         const hasArgs = Object.keys(args).length > 0;
+        const displayArgs = hasArgs && !download_tools.includes(tc.name)
+
         return (
           <div
             key={idx}
             className="overflow-hidden rounded-lg border border-gray-200"
           >
-            <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
+            <div className={`${displayArgs ? 'border-b' : ''} border-gray-200 bg-gray-50 px-4 py-2`}>
               <h3 className="font-medium text-gray-900">
                 {(tc.name in calls_descriptions) ? (
                   calls_descriptions[tc.name]
@@ -41,7 +65,7 @@ export function ToolCalls({
                 )}                
               </h3>
             </div>
-            {hasArgs ? (
+            {displayArgs && (
               <table className="min-w-full divide-y divide-gray-200">
                 <tbody className="divide-y divide-gray-200">
                   {Object.entries(args).map(([key, value], argIdx) => (
@@ -62,8 +86,6 @@ export function ToolCalls({
                   ))}
                 </tbody>
               </table>
-            ) : (
-              <code className="block p-3 text-sm">{"{}"}</code>
             )}
           </div>
         );
@@ -90,6 +112,8 @@ export function ToolResult({ message }: { message: ToolMessage }) {
 
   const artifact = (message as any).artifact ?? null;
   const sources = artifact?.sources ?? null;
+  const download_url = artifact?.download_url ?? null;
+  const error = message.status == 'error'
 
   const contentStr = isJsonContent
     ? JSON.stringify(parsedContent, null, 2)
@@ -100,8 +124,8 @@ export function ToolResult({ message }: { message: ToolMessage }) {
   const shouldTruncate = contentLines.length > 4 || contentStr.length > 500;
   const displayedContent =
     shouldTruncate && !isExpanded
-      ? contentStr.length > 300
-        ? contentStr.slice(0, 300) + "..."
+      ? contentStr.length > 250
+        ? contentStr.slice(0, 250) + "..."
         : contentLines.slice(0, 4).join("\n") + "\n..."
       : contentStr;
       
@@ -113,7 +137,7 @@ export function ToolResult({ message }: { message: ToolMessage }) {
             {message.name ? (
               (message.name in results_descriptions) ? (
                 <h3 className="font-medium text-gray-900">
-                  {results_descriptions[message.name]}
+                  { !error ? results_descriptions[message.name] : 'Something went wrong 💔'}
                 </h3>
               ) : (
                 <h3 className="font-medium text-gray-900">
@@ -177,13 +201,15 @@ export function ToolResult({ message }: { message: ToolMessage }) {
                       })}
                     </tbody>
                   </table>
-                ) : (
-                  <MarkdownText>{displayedContent}</MarkdownText>
-                )}
+                ) : ( !error && (
+                  <MarkdownText>
+                    {download_url && message.name != undefined ? `🔗 [Click here to download your ${output_names[message.name]}](${download_url})` : displayedContent}
+                  </MarkdownText>
+                ))}
               </motion.div>
             </AnimatePresence>
           </div>
-          {((shouldTruncate && !isJsonContent) ||
+          {((shouldTruncate && !isJsonContent && !error) ||
             (isJsonContent &&
               Array.isArray(parsedContent) &&
               parsedContent.length > 5)) && (

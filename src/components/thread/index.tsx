@@ -45,6 +45,7 @@ import {
   ArtifactTitle,
   useArtifactContext,
 } from "./artifact";
+import { StarterButton } from './starterButton'
 import Image from "next/image";
 
 function StickyToBottomContent(props: {
@@ -117,15 +118,12 @@ export function Thread() {
   const [artifactOpen, closeArtifact] = useArtifactOpen();
 
   const [threadId, _setThreadId] = useQueryState("threadId");
-  const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
-    "chatHistoryOpen",
-    parseAsBoolean.withDefault(false),
-  );
-  const [hideToolCalls, setHideToolCalls] = useQueryState(
-    "hideToolCalls",
-    parseAsBoolean.withDefault(false),
-  );
-  const [input, setInput] = useState("");
+  const [promptBase, setPromptBase] = useQueryState('promptBase');
+
+  const [chatHistoryOpen, setChatHistoryOpen] = useQueryState("chatHistoryOpen", parseAsBoolean.withDefault(false),);
+  const [hideToolCalls, setHideToolCalls] = useQueryState("hideToolCalls", parseAsBoolean.withDefault(false),);
+  const [input, setInput] = useState(promptBase ?? "");
+  
   const {
     contentBlocks,
     setContentBlocks,
@@ -142,8 +140,6 @@ export function Thread() {
   const stream = useStreamContext();
   const messages = stream.messages;
   const isLoading = stream.isLoading;
-
-  console.log('messages:', messages);
 
   const lastError = useRef<string | undefined>(undefined);
 
@@ -256,6 +252,14 @@ export function Thread() {
 
   const last_message = messages[messages.length - 1]
   const thinking = last_message != undefined && last_message.type == 'ai' && last_message.content == ''
+
+  const submitBasePrompt = (basePrompt: string) => {
+    setInput(basePrompt);
+    setTimeout(() => {
+      const form = document.querySelector("form");
+      form?.requestSubmit();
+    }, 0);
+  }
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -388,11 +392,11 @@ export function Thread() {
             </div>
           )}
 
-          <StickToBottom className="relative flex-1 overflow-hidden">
+          <StickToBottom className="relative flex-1 overflow-y-auto">
             <StickyToBottomContent
               className={cn(
                 "absolute inset-0 overflow-y-scroll px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
-                !chatStarted && "mt-[25vh] flex flex-col items-stretch",
+                !chatStarted && "flex flex-col items-stretch",
                 chatStarted && "grid grid-rows-[1fr_auto]",
               )}
               contentClassName="pt-8 pb-16  max-w-3xl mx-auto flex flex-col gap-4 w-full"
@@ -436,14 +440,54 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-16 bg-white">
+                <div className="sticky bottom-0 flex flex-col items-center gap-12 bg-white pt-4">
                   {!chatStarted && (
-                    <div className="flex flex-col items-center gap-4">
-                      <Image src='/logo.svg' width={250} height={500} alt='Lucido Logo'/>
-                      <h1 className="text-2xl tracking-tight">
-                        your virtual teaching assistant
-                      </h1>
-                    </div>
+                    <>
+                      <div className="flex flex-col items-center gap-4">
+                        <Image src='/logo.svg' width={250} height={500} alt='Lucido Logo'/>
+                        <h1 className="text-2xl tracking-tight">
+                          your virtual teaching assistant
+                        </h1>
+                      </div>
+                      <div className='max-w-3xl w-full grid grid-cols-2 gap-4'>
+                        <StarterButton 
+                          title='❓ Ask Fun Facts' 
+                          color='#95B1A9'
+                          textColor="white"
+                          onClick={() => { submitBasePrompt('I would like to hear some fun facts!') }}
+                        />
+                        <StarterButton 
+                          title='🔎 Look up Information'
+                          color='#FFB491'
+                          textColor="white"
+                          onClick={() => { submitBasePrompt('Can you look up information for me?') }}
+                        />
+                        <StarterButton 
+                          title='📄 Generate Cheatsheet' 
+                          color='#4F6B76'
+                          textColor="white"
+                          onClick={() => { submitBasePrompt('I would like to generate a cheatsheet.') }} 
+                        />
+                        <StarterButton 
+                          title='📝 Generate Quiz' 
+                          color='#d68875'
+                          textColor="white"
+                          onClick={() => { submitBasePrompt('I would like to generate a quiz.')}} 
+                        />
+                        <StarterButton 
+                          title='📇 Generate Flashcards' 
+                          color='#17314D'
+                          textColor="white"
+                          onClick={() => { submitBasePrompt('I would like to generate some flashcards.')}}
+                        />
+                        <StarterButton 
+                          title='🎤 Generate Podcast' 
+                          color='#A36672'
+                          textColor="white" 
+                          onClick={() => { submitBasePrompt('I would like to generate a podcast.') }} 
+                        />
+                      </div>
+                    </>
                   )}
 
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
@@ -451,7 +495,7 @@ export function Thread() {
                   <div
                     ref={dropRef}
                     className={cn(
-                      "bg-muted relative z-10 mx-auto mb-8 w-full max-w-3xl rounded-2xl shadow-xs transition-all",
+                      "bg-muted relative z-10 mx-auto mb-16 w-full max-w-3xl rounded-2xl shadow-xs transition-all",
                       dragOver
                         ? "border-primary border-2 border-dotted"
                         : "border border-solid",
@@ -530,6 +574,12 @@ export function Thread() {
             <ArtifactContent className="relative flex-grow" />
           </div>
         </div>
+      </div>
+
+      <div className="fixed bottom-0 left-0 w-full bg-white shadow z-50 p-2 border-t-1 text-xs text-gray-800 flex gap-5 justify-center items-center">
+        <span>Copyright © 2025 <a className='underline text-blue-600' href='https://www.mcgill.ca/'>McGill University</a></span>
+        <span>Application by <a className='underline text-blue-600' href='https://www.linkedin.com/in/dante-garcia-3246362b5/'>Dante Garcia</a></span> 
+        <span>Color Scheme by <a className='underline text-blue-600' href='https://www.linkedin.com/in/annie-dang-47b6a8259/'>Annie Dang</a></span>
       </div>
     </div>
   );
