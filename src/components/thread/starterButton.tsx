@@ -4,7 +4,7 @@ interface starterButtonProps {
     title: string;
     color: string;
     textColor: string;
-    onClick: Function;
+    onClick: () => void;
 }
 
 export const StarterButton: React.FC<starterButtonProps> = ({ 
